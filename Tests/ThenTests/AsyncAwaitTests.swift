@@ -13,12 +13,12 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAsyncAwaitChainWorks() {
         let exp = expectation(description: "")
-        async {
-            let userId = try await(fetchUserId())
+        asyncPromise {
+            let userId = try awaitPromise(fetchUserId())
             XCTAssertEqual(userId, 1234)
-            let userName = try await(fetchUserNameFromId(userId))
+            let userName = try awaitPromise(fetchUserNameFromId(userId))
             XCTAssertEqual(userName, "John Smith")
-            let isFollowed = try await(fetchUserFollowStatusFromName(userName))
+            let isFollowed = try awaitPromise(fetchUserFollowStatusFromName(userName))
             XCTAssertFalse(isFollowed)
             exp.fulfill()
         }
@@ -27,8 +27,8 @@ class AsyncAwaitTests: XCTestCase {
     
     func testFailingAsyncAwait() {
         let exp = expectation(description: "")
-        async {
-            _ = try await(failingFetchUserFollowStatusFromName("JohnDoe"))
+        asyncPromise {
+            _ = try awaitPromise(failingFetchUserFollowStatusFromName("JohnDoe"))
             XCTFail("testFailingAsyncAwait failed")
         }.onError { _ in
             exp.fulfill()
@@ -39,7 +39,7 @@ class AsyncAwaitTests: XCTestCase {
     func testCatchFailingAsyncAwait() {        
         let exp = expectation(description: "")
         do {
-            _ = try await(failingFetchUserFollowStatusFromName("JohnDoe"))
+            _ = try awaitPromise(failingFetchUserFollowStatusFromName("JohnDoe"))
             XCTFail("testCatchFailingAsyncAwait failed")
         } catch {
             exp.fulfill()
@@ -49,11 +49,11 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAsyncAwaitUnwrapAtYourOwnRisk() {
         let exp = expectation(description: "")
-        let userId = try! await(fetchUserId())
+        let userId = try! awaitPromise(fetchUserId())
         XCTAssertEqual(userId, 1234)
-        let userName = try! await(fetchUserNameFromId(userId))
+        let userName = try! awaitPromise(fetchUserNameFromId(userId))
         XCTAssertEqual(userName, "John Smith")
-        let isFollowed = try! await(fetchUserFollowStatusFromName(userName))
+        let isFollowed = try! awaitPromise(fetchUserFollowStatusFromName(userName))
         XCTAssertFalse(isFollowed)
         exp.fulfill()
         waitForExpectations(timeout: 0.3, handler: nil)
@@ -61,8 +61,8 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAsyncBlockCanReturnAValue() {
         let exp = expectation(description: "")
-        async { () -> Int in
-            let userId = try await(fetchUserId())
+        asyncPromise { () -> Int in
+            let userId = try awaitPromise(fetchUserId())
             return userId
         }.then { userId in
             XCTAssertEqual(userId, 1234)
@@ -75,7 +75,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAsyncAwaitChainWorksOperator() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let userId = try ..fetchUserId()
             XCTAssertEqual(userId, 1234)
             let userName = try ..fetchUserNameFromId(userId)
@@ -89,7 +89,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testFailingAsyncAwaitOperator() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             _ = try ..failingFetchUserFollowStatusFromName("JohnDoe")
             XCTFail("testFailingAsyncAwait failed")
         }.onError { _ in
@@ -123,7 +123,7 @@ class AsyncAwaitTests: XCTestCase {
 
     func testAsyncBlockCanReturnAValueOperator() {
         let exp = expectation(description: "")
-        async { () -> Int in
+        asyncPromise { () -> Int in
             let userId = try ..fetchUserId()
             return userId
         }.then { userId in
@@ -137,7 +137,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testOptionalPromises() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let optionalPromise: Promise? = fetchUserId()
             let userId = try ..optionalPromise
             XCTAssertEqual(userId, 1234)
@@ -148,7 +148,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testNilOptionalPromisesFail() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let optionalPromise: Promise<Int>? = nil
             _ = try ..optionalPromise
             XCTFail("testFailingAsyncAwait failed")
@@ -162,7 +162,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAwaitNilingOperator() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let userId = ..?fetchUserId()
             XCTAssertEqual(userId, 1234)
             exp.fulfill()
@@ -172,7 +172,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAwaitNilingOperatorError() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let string = ..?(failingFetchUserFollowStatusFromName("JohnDoe"))
             XCTAssertNil(string)
             exp.fulfill()
@@ -186,7 +186,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAwaitNilingOperatorOptional() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let promise: Promise<Int>? = fetchUserId()
             let userId = ..?promise
             XCTAssertEqual(userId, 1234)
@@ -197,7 +197,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAwaitNilingOperatorErrorOptinal() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let promise: Promise<Bool>? = failingFetchUserFollowStatusFromName("JohnDoe")
             let string = ..?promise
             XCTAssertNil(string)
@@ -210,7 +210,7 @@ class AsyncAwaitTests: XCTestCase {
     
     func testAwaitNilingOperatorErrorNilOptional() {
         let exp = expectation(description: "")
-        async {
+        asyncPromise {
             let promise: Promise<Bool>? = nil
             let string = ..?promise
             XCTAssertNil(string)
