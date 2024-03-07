@@ -4,7 +4,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "Then",
+    name: "CRThen",
     platforms: [
         .iOS(.v13),
         .macOS(.v10_12),
@@ -12,10 +12,10 @@ let package = Package(
         .watchOS(.v6)
     ],
     products: [
-        .library(name: "Then", targets: ["Then"])
+        .library(name: "CRThen", targets: ["CRThen"])
     ],
     targets: [
-        .target(name: "Then"),
-        .testTarget(name: "ThenTests", dependencies: ["Then"])
+        .target(name: "CRThen"),
+        .testTarget(name: "CRThenTests", dependencies: ["CRThen"])
     ]
 )

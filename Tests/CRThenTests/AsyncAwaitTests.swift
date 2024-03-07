@@ -7,7 +7,7 @@
 //
 
 import XCTest
-import Then
+import CRThen
 
 class AsyncAwaitTests: XCTestCase {
     
